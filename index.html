@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Energy Clicker with Prestige</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-image: url('https://www.nasa.gov/sites/default/files/thumbnails/3000x2000_030118_blue_marble.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+    #clicker {
+      padding: 20px 40px;
+      font-size: 24px;
+      background: #00aaff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: transform 0.1s, background 0.3s;
+    }
+    #clicker:active {
+      transform: scale(0.95);
+      background: #0099cc;
+    }
+    #score {
+      font-size: 36px;
+      margin: 20px;
+      transition: transform 0.2s;
+    }
+    .store {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .upgrade {
+      background: #444;
+      border: 2px solid #00aaff;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .upgrade:hover {
+      background: #555;
+      transform: scale(1.05);
+    }
+    .cursor {
+      width: 20px;
+      height: 20px;
+      background-color: #00aaff;
+      border-radius: 50%;
+      position: absolute;
+      animation: bounce 1s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .prestige {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #ffdd00;
+      cursor: pointer;
+    }
+    .prestige:hover {
+      color: #ffaa00;
+    }
+
+    /* Command Bar Styling */
+    #commandBar {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 100;
+    }
+
+    #commandInput {
+      width: 250px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #00aaff;
+      background: #333;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    #commandSubmit {
+      background: #00aaff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #commandSubmit:hover {
+      background: #0099cc;
+    }
+
+    #questionMarkButton {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: #ffdd00;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      color: #000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    #closeCommandBarButton {
+      background: #ff3333;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    #closeCommandBarButton:hover {
+      background: #ff5555;
+    }
+
+    /* Notification Box Styling */
+    #notificationBox {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      z-index: 200;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">
+    Energy: 0
+    <div id="autoClickerCursors"></div>
+  </div>
+  <button id="clicker">Collect Space Energy!</button>
+
+  <div class="store">
+    <div class="upgrade" id="autoClickerBtn" onclick="buyAutoClicker()">Buy Spaceship (Cost: 50, Level: 0)</div>
+    <div class="upgrade" id="multiplierBtn" onclick="buyMultiplier()">Buy Energy Beam (Cost: 20, Level: 1)</div>
+    <div class="upgrade" id="autoClickerSpeedBtn" onclick="buyAutoClickerSpeed()">Buy Solar Panel Speed (Cost: 200)</div>
+    <div class="prestige" id="prestigeBtn" onclick="prestige()">Prestige (Requires 1000 Energy)</div>
+  </div>
+
+  <!-- Command Bar -->
+  <div id="commandBar">
+    <button id="closeCommandBarButton" onclick="closeCommandBar()">Close</button>
+    <input type="text" id="commandInput" placeholder="Enter secret command..." />
+    <button id="commandSubmit" onclick="submitCommand()">Submit</button>
+  </div>
+
+  <!-- Question Mark Button -->
+  <button id="questionMarkButton" onclick="toggleCommandBar()">?</button>
+
+  <!-- Notification Box -->
+  <div id="notificationBox"></div>
+
+  <script>
+    let energy = 0;
+    let spaceships = 0;
+    let energyBeam = 1;
+    let spaceshipCost = 50;
+    let energyBeamCost = 20;
+    let solarPanelCost = 200;
+    let spaceshipSpeed = 1000;  // Time in ms for spaceship interval
+    let prestigeLevel = 0;  // Tracks how many times the player has prestiged
+    let prestigeThreshold = 1000;  // Energy required to prestige
+    const prestigeBaseThreshold = 1000;  // Starting prestige threshold
+    const scoreDisplay = document.getElementById("score");
+    const clicker = document.getElementById("clicker");
+    const autoClickerBtn = document.getElementById("autoClickerBtn");
+    const multiplierBtn = document.getElementById("multiplierBtn");
+    const autoClickerSpeedBtn = document.getElementById("autoClickerSpeedBtn");
+    const prestigeBtn = document.getElementById("prestigeBtn");
+    const autoClickerCursors = document.getElementById("autoClickerCursors");
+    const notificationBox = document.getElementById("notificationBox");
+
+    // Command bar elements
+    const commandBar = document.getElementById("commandBar");
+    const commandInput = document.getElementById("commandInput");
+
+    // Question mark button
+    const questionMarkButton = document.getElementById("questionMarkButton");
+
+    let isAdmin = false;  // Admin flag to enable secret commands
+
+    clicker.addEventListener("click", () => {
+      energy += energyBeam;
+      animateScore();
+      updateScore();
+    });
+
+    function updateScore() {
+      scoreDisplay.textContent = `Energy: ${energy}`;
+      autoClickerBtn.textContent = `Buy Spaceship (Cost: ${spaceshipCost}, Level: ${spaceships})`;
+      multiplierBtn.textContent = `Buy Energy Beam (Cost: ${energyBeamCost}, Level: ${energyBeam})`;
+      autoClickerSpeedBtn.textContent = `Buy Solar Panel Speed (Cost: ${solarPanelCost})`;
+      prestigeBtn.textContent = `Prestige (Requires ${prestigeThreshold} Energy)`;
+      renderAutoClickers();
+    }
+
+    function renderAutoClickers() {
+      autoClickerCursors.innerHTML = "";
+      for (let i = 0; i < spaceships; i++) {
+        const cursor = document.createElement("div");
+        cursor.classList.add("cursor");
+        cursor.style.left = `${Math.random() * 100}%`;
+        cursor.style.top = `${Math.random() * 100}%`;
+        autoClickerCursors.appendChild(cursor);
+      }
+    }
+
+    function animateScore() {
+      scoreDisplay.style.transform = "scale(1.1)";
+      setTimeout(() => {
+        scoreDisplay.style.transform = "scale(1)";
+      }, 150);
+    }
+
+    function buyAutoClicker() {
+      if (energy >= spaceshipCost) {
+        energy -= spaceshipCost;
+        spaceships++;
+        spaceshipCost = Math.floor(spaceshipCost * 1.5);
+        updateScore();
+        showNotification(`You bought a spaceship!`);
+      } else {
+        showNotification(`Not enough energy!`);
+      }
+    }
+
+    function buyMultiplier() {
+      if (energy >= energyBeamCost) {
+        energy -= energyBeamCost;
+        energyBeam++;
+        energyBeamCost = Math.floor(energyBeamCost * 2);
+        updateScore();
+        showNotification(`You bought an energy beam!`);
+      } else {
+        showNotification(`Not enough energy!`);
+      }
+    }
+
+    function buyAutoClickerSpeed() {
+      if (energy >= solarPanelCost) {
+        energy -= solarPanelCost;
+        spaceshipSpeed = Math.max(50, spaceshipSpeed - 100); // Speed up to 50ms per spaceship click
+        solarPanelCost = Math.floor(solarPanelCost * 1.5); // Increase solar panel speed upgrade cost
+        updateScore();
+        showNotification(`Solar panel speed upgraded!`);
+      } else {
+        showNotification(`Not enough energy!`);
+      }
+    }
+
+    function prestige() {
+      if (energy >= prestigeThreshold) {
+        energy = 0;
+        spaceships = 0;
+        energyBeam = 1;
+        spaceshipSpeed = 1000;  // Reset spaceship speed
+        prestigeLevel++;
+        prestigeThreshold = Math.floor(prestigeThreshold * 2); // Increase the threshold after each prestige
+        updateScore();
+        showNotification(`Prestiged! You are now at prestige level ${prestigeLevel}.`);
+      } else {
+        showNotification(`You need ${prestigeThreshold} energy to prestige.`);
+      }
+    }
+
+    // Toggle Command Bar visibility
+    function toggleCommandBar() {
+      if (commandBar.style.display === "none" || commandBar.style.display === "") {
+        commandBar.style.display = "flex";
+      } else {
+        commandBar.style.display = "none";
+      }
+    }
+
+    // Close Command Bar
+    function closeCommandBar() {
+      commandBar.style.display = "none";
+    }
+
+    // Show Notifications in the UI
+    function showNotification(message) {
+      notificationBox.textContent = message;
+      notificationBox.style.display = "block";
+      setTimeout(() => {
+        notificationBox.style.display = "none";
+      }, 3000);  // Hide after 3 seconds
+    }
+
+    // Submit Command for secret commands
+    function submitCommand() {
+      const command = commandInput.value.trim().toLowerCase();
+      const args = command.split(' ');
+
+      if (command === "unlockadmin") {
+        isAdmin = true;
+        showNotification("You have unlocked admin commands! Here is the list of commands:");
+        showNotification(`1. givepoints [amount] - Gives energy`);
+        showNotification(`2. reset - Resets the game`);
+        showNotification(`3. adminop - Max levels for everything`);
+        showNotification(`4. boostclick [amount] - Boost your click power`);
+        showNotification(`5. maxspeed - Sets max spaceship speed`);
+        showNotification(`6. richmode - Gives a ton of energy and upgrades`);
+        showNotification(`7. unlockall - Unlocks all upgrades`);
+        showNotification(`8. prestigemax - Prestiges multiple times`);
+        showNotification(`9. storm - Gives 1000 energy per second`);
+        showNotification(`10. mysterybox - Opens a mystery box`);
+      } else if (command.startsWith("givepoints") && isAdmin && args.length === 2) {
+        const points = parseInt(args[1]);
+        if (!isNaN(points) && points > 0) {
+          energy += points;
+          updateScore();
+          showNotification(`You gained ${points} energy!`);
+        } else {
+          showNotification("Invalid points value. Please enter a positive number.");
+        }
+      } else if (command === "reset" && isAdmin) {
+        energy = 0;
+        spaceships = 0;
+        energyBeam = 1;
+        spaceshipSpeed = 1000;
+        updateScore();
+        showNotification("Game reset!");
+      } else if (command === "adminop" && isAdmin) {
+        energy = 1000;
+        spaceships = 1000;
+        energyBeam = 1000;
+        spaceshipSpeed = 1000;
+        updateScore();
+        showNotification("Admin op applied: 1000 of everything!");
+      } else {
+        showNotification("Invalid command or you need admin access.");
+      }
+      commandInput.value = "";  // Clear input after submitting
+    }
+
+    setInterval(() => {
+      energy += spaceships * energyBeam;
+      updateScore();
+    }, spaceshipSpeed); // This determines how fast spaceships click
+  </script>
+</body>
+</html>
