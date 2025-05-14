@@ -1,2 +1,1 @@
-# space-clicker-game
-Simple Space clicker game.
+https://coalthebest.github.io/space-clicker-game/
