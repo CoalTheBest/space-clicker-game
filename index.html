@@ -165,6 +165,22 @@
       display: none;
       z-index: 200;
     }
+
+    /* Command List Notification Box */
+    #commandNotificationBox {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      display: none;
+      z-index: 200;
+      max-height: 80%; /* Limit height */
+      overflow-y: auto; /* Enable scrolling if it exceeds */
+      width: 250px; /* Fixed width for a better vertical view */
+    }
   </style>
 </head>
 <body>
@@ -193,6 +209,9 @@
 
   <!-- Notification Box -->
   <div id="notificationBox"></div>
+
+  <!-- Command List Notification Box -->
+  <div id="commandNotificationBox"></div>
 
   <script>
     let energy = 0;
@@ -322,12 +341,22 @@
     }
 
     // Show Notifications in the UI
-    function showNotification(message) {
-      notificationBox.textContent = message;
-      notificationBox.style.display = "block";
-      setTimeout(() => {
-        notificationBox.style.display = "none";
-      }, 3000);  // Hide after 3 seconds
+    function showNotification(message, isCommandList = false) {
+      if (isCommandList) {
+        notificationBox.style.display = "none";  // Hide the regular notification box
+        const commandNotificationBox = document.getElementById("commandNotificationBox");
+        commandNotificationBox.textContent += message + "\n";  // Append messages
+        commandNotificationBox.style.display = "block";
+        setTimeout(() => {
+          commandNotificationBox.style.display = "none";
+        }, 5000);  // Hide after 5 seconds
+      } else {
+        notificationBox.textContent = message;
+        notificationBox.style.display = "block";
+        setTimeout(() => {
+          notificationBox.style.display = "none";
+        }, 3000);  // Hide after 3 seconds
+      }
     }
 
     // Submit Command for secret commands
@@ -337,17 +366,17 @@
 
       if (command === "unlockadmin") {
         isAdmin = true;
-        showNotification("You have unlocked admin commands! Here is the list of commands:");
-        showNotification("1. givepoints [amount] - Gives energy");
-        showNotification("2. reset - Resets the game");
-        showNotification("3. adminop - Max levels for everything");
-        showNotification("4. boostclick [amount] - Boost your click power");
-        showNotification("5. maxspeed - Sets max spaceship speed");
-        showNotification("6. richmode - Gives a ton of energy and upgrades");
-        showNotification("7. unlockall - Unlocks all upgrades");
-        showNotification("8. prestigemax - Prestiges multiple times");
-        showNotification("9. storm - Gives 1000 energy per second");
-        showNotification("10. mysterybox - Opens a mystery box");
+        showNotification("You have unlocked admin commands! Here is the list of commands:", true);
+        showNotification("1. givepoints [amount] - Gives energy", true);
+        showNotification("2. reset - Resets the game", true);
+        showNotification("3. adminop - Max levels for everything", true);
+        showNotification("4. boostclick [amount] - Boost your click power", true);
+        showNotification("5. maxspeed - Sets max spaceship speed", true);
+        showNotification("6. richmode - Gives a ton of energy and upgrades", true);
+        showNotification("7. unlockall - Unlocks all upgrades", true);
+        showNotification("8. prestigemax - Prestiges multiple times", true);
+        showNotification("9. storm - Gives 1000 energy per second", true);
+        showNotification("10. mysterybox - Opens a mystery box", true);
       } else if (command.startsWith("givepoints") && isAdmin && args.length === 2) {
         const points = parseInt(args[1]);
         if (!isNaN(points) && points > 0) {
