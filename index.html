@@ -230,11 +230,11 @@
     });
 
     function updateScore() {
-      scoreDisplay.textContent = Energy: ${energy};
-      autoClickerBtn.textContent = Buy Spaceship (Cost: ${spaceshipCost}, Level: ${spaceships});
-      multiplierBtn.textContent = Buy Energy Beam (Cost: ${energyBeamCost}, Level: ${energyBeam});
-      autoClickerSpeedBtn.textContent = Buy Solar Panel Speed (Cost: ${solarPanelCost});
-      prestigeBtn.textContent = Prestige (Requires ${prestigeThreshold} Energy);
+      scoreDisplay.textContent = `Energy: ${energy}`;
+      autoClickerBtn.textContent = `Buy Spaceship (Cost: ${spaceshipCost}, Level: ${spaceships})`;
+      multiplierBtn.textContent = `Buy Energy Beam (Cost: ${energyBeamCost}, Level: ${energyBeam})`;
+      autoClickerSpeedBtn.textContent = `Buy Solar Panel Speed (Cost: ${solarPanelCost})`;
+      prestigeBtn.textContent = `Prestige (Requires ${prestigeThreshold} Energy)`;
       renderAutoClickers();
     }
 
@@ -243,8 +243,8 @@
       for (let i = 0; i < spaceships; i++) {
         const cursor = document.createElement("div");
         cursor.classList.add("cursor");
-        cursor.style.left = ${Math.random() * 100}%;
-        cursor.style.top = ${Math.random() * 100}%;
+        cursor.style.left = `${Math.random() * 100}%`;
+        cursor.style.top = `${Math.random() * 100}%`;
         autoClickerCursors.appendChild(cursor);
       }
     }
@@ -262,9 +262,9 @@
         spaceships++;
         spaceshipCost = Math.floor(spaceshipCost * 1.5);
         updateScore();
-        showNotification(You bought a spaceship!);
+        showNotification("You bought a spaceship!");
       } else {
-        showNotification(Not enough energy!);
+        showNotification("Not enough energy!");
       }
     }
 
@@ -274,9 +274,9 @@
         energyBeam++;
         energyBeamCost = Math.floor(energyBeamCost * 2);
         updateScore();
-        showNotification(You bought an energy beam!);
+        showNotification("You bought an energy beam!");
       } else {
-        showNotification(Not enough energy!);
+        showNotification("Not enough energy!");
       }
     }
 
@@ -286,9 +286,9 @@
         spaceshipSpeed = Math.max(50, spaceshipSpeed - 100); // Speed up to 50ms per spaceship click
         solarPanelCost = Math.floor(solarPanelCost * 1.5); // Increase solar panel speed upgrade cost
         updateScore();
-        showNotification(Solar panel speed upgraded!);
+        showNotification("Solar panel speed upgraded!");
       } else {
-        showNotification(Not enough energy!);
+        showNotification("Not enough energy!");
       }
     }
 
@@ -301,9 +301,9 @@
         prestigeLevel++;
         prestigeThreshold = Math.floor(prestigeThreshold * 2); // Increase the threshold after each prestige
         updateScore();
-        showNotification(Prestiged! You are now at prestige level ${prestigeLevel}.);
+        showNotification(`Prestiged! You are now at prestige level ${prestigeLevel}.`);
       } else {
-        showNotification(You need ${prestigeThreshold} energy to prestige.);
+        showNotification(`You need ${prestigeThreshold} energy to prestige.`);
       }
     }
 
@@ -338,22 +338,22 @@
       if (command === "unlockadmin") {
         isAdmin = true;
         showNotification("You have unlocked admin commands! Here is the list of commands:");
-        showNotification(1. givepoints [amount] - Gives energy);
-        showNotification(2. reset - Resets the game);
-        showNotification(3. adminop - Max levels for everything);
-        showNotification(4. boostclick [amount] - Boost your click power);
-        showNotification(5. maxspeed - Sets max spaceship speed);
-        showNotification(6. richmode - Gives a ton of energy and upgrades);
-        showNotification(7. unlockall - Unlocks all upgrades);
-        showNotification(8. prestigemax - Prestiges multiple times);
-        showNotification(9. storm - Gives 1000 energy per second);
-        showNotification(10. mysterybox - Opens a mystery box);
+        showNotification("1. givepoints [amount] - Gives energy");
+        showNotification("2. reset - Resets the game");
+        showNotification("3. adminop - Max levels for everything");
+        showNotification("4. boostclick [amount] - Boost your click power");
+        showNotification("5. maxspeed - Sets max spaceship speed");
+        showNotification("6. richmode - Gives a ton of energy and upgrades");
+        showNotification("7. unlockall - Unlocks all upgrades");
+        showNotification("8. prestigemax - Prestiges multiple times");
+        showNotification("9. storm - Gives 1000 energy per second");
+        showNotification("10. mysterybox - Opens a mystery box");
       } else if (command.startsWith("givepoints") && isAdmin && args.length === 2) {
         const points = parseInt(args[1]);
         if (!isNaN(points) && points > 0) {
           energy += points;
           updateScore();
-          showNotification(You gained ${points} energy!);
+          showNotification(`You gained ${points} energy!`);
         } else {
           showNotification("Invalid points value. Please enter a positive number.");
         }
