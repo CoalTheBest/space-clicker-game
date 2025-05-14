@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Space Energy Clicker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="score">
+    Energy: 0
+    <div id="autoClickerCursors"></div>
+  </div>
+  <button id="clicker">Collect Space Energy!</button>
+
+  <div class="store">
+    <div class="upgrade" id="autoClickerBtn">Buy Spaceship</div>
+    <div class="upgrade" id="multiplierBtn">Buy Energy Beam</div>
+    <div class="upgrade" id="autoClickerSpeedBtn">Buy Solar Panel Speed</div>
+    <div class="prestige" id="prestigeBtn">Prestige</div>
+  </div>
+
+  <div id="commandBar">
+    <button id="closeCommandBarButton">Close</button>
+    <input type="text" id="commandInput" placeholder="Enter secret command..."/>
+    <button id="commandSubmit">Submit</button>
+  </div>
+
+  <button id="questionMarkButton">?</button>
+
+  <div id="notificationBox"></div>
+
+  <!-- Scripts -->
+  <script src="ui.js"></script>
+  <script src="prestige.js"></script>
+  <script src="shop.js"></script>
+  <script src="commands.js"></script>
+</body>
+</html>
